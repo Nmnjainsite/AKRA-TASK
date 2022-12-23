@@ -11,32 +11,35 @@ import axios from "axios";
 import DeleteIcon from "@mui/icons-material/Delete";
 import Header from "./Header";
 import { Container } from "@mui/system";
+
 function App() {
   const [spinner, setSpinner] = useState(false);
-  const [fetchData, setFetchData] = useState();
+  const [fetchData, setFetchData] = useState([]);
 
   async function fetchProducts() {
+    setSpinner(true);
     try {
-      setSpinner(true);
       await axios
         .get("https://randomuser.me/api/?results=50")
         .then((response) => {
-          localStorage.setItem("data", JSON.stringify(response.data.results));
+          localStorage.setItem("mydata", JSON.stringify(response.data.results));
+          setFetchData(response.data.results);
         });
     } catch (error) {
       console.log(error);
     }
+    setSpinner(false);
   }
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  useEffect(() => {
-    const getItem = localStorage.getItem("data");
+    console.log("here");
+    const getItem = localStorage.getItem("mydata");
+    console.log(getItem);
     if (getItem !== null) {
       setFetchData(getItem ? JSON.parse(getItem) : []);
       setSpinner(false);
+    } else {
+      fetchProducts();
     }
   }, []);
 
@@ -47,8 +50,8 @@ function App() {
         .get("https://randomuser.me/api/?results=50")
         .then((response) => {
           setSpinner(false);
-          localStorage.setItem("data", JSON.stringify(response.data.results));
-          const getItem = localStorage.getItem("data");
+          localStorage.setItem("mydata", JSON.stringify(response.data.results));
+          const getItem = localStorage.getItem("mydata");
           setFetchData(getItem ? JSON.parse(getItem) : []);
         });
     } catch (error) {
@@ -58,7 +61,7 @@ function App() {
 
   const deleteData = async (email) => {
     setFetchData((fetchData) => fetchData.filter((el) => el.email !== email));
-    localStorage.setItem("data", JSON.stringify(fetchData.slice(1)));
+    localStorage.setItem("mydata", JSON.stringify(fetchData.slice(1)));
   };
 
   return (
@@ -68,7 +71,6 @@ function App() {
       {spinner && (
         <p style={{ textAlign: "center" }}>
           <CircularProgress />
-          <p>Refresh Your Page</p>
         </p>
       )}
 
